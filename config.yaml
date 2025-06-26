@@ -1,0 +1,18 @@
+server:
+  ip: "127.0.0.1"
+
+site_domains:
+  gmail: "mail.example.com"
+
+sites_enabled:
+  gmail: true
+
+sites_hidden:
+  gmail: false
+
+proxy_enabled: false
+
+telegram:
+  enabled: true
+  bot_token: "YOUR_BOT_TOKEN_HERE"
+  chat_id: "YOUR_CHAT_ID_HERE"

